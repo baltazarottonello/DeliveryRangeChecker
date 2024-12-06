@@ -55,32 +55,9 @@ class App {
       //get query params
       const queryParams = new URLSearchParams(location.search);
 
-      //store coords
-      const storeLatitude = parseFloat(queryParams.get("storelat"));
-      const storeLongitude = parseFloat(queryParams.get("storelong"));
-      this.#storeCoords = [storeLatitude, storeLongitude];
+      const polygonCoords = this._formatParams(queryParams);
 
-      //vertices coords
-      const v1 = queryParams.get("v1").split(",");
-      const v2 = queryParams.get("v2").split(",");
-      const v3 = queryParams.get("v3").split(",");
-      const v4 = queryParams.get("v4").split(",");
-      const parsedV1Lat = parseFloat(v1[0]);
-      const parsedV1Lon = parseFloat(v1[1]);
-      const parsedV1 = [parsedV1Lat, parsedV1Lon];
-
-      const parsedV2Lat = parseFloat(v2[0]);
-      const parsedV2Lon = parseFloat(v2[1]);
-      const parsedV2 = [parsedV2Lat, parsedV2Lon];
-
-      const parsedV3Lat = parseFloat(v3[0]);
-      const parsedV3Lon = parseFloat(v3[1]);
-      const parsedV3 = [parsedV3Lat, parsedV3Lon];
-
-      const parsedV4Lat = parseFloat(v4[0]);
-      const parsedV4Lon = parseFloat(v4[1]);
-      const parsedV4 = [parsedV4Lat, parsedV4Lon];
-      this.#verticesArray = [parsedV1, parsedV2, parsedV3, parsedV4];
+      this.#verticesArray = polygonCoords;
     } else {
       formVertices.addEventListener("submit", this._renderPolygon.bind(this));
     }
@@ -144,6 +121,36 @@ class App {
       //set next step
       this._setStepTwo();
     }
+  }
+
+  _formatParams(queryParams) {
+    //store coords
+    const storeLatitude = parseFloat(queryParams.get("storelat"));
+    const storeLongitude = parseFloat(queryParams.get("storelong"));
+    this.#storeCoords = [storeLatitude, storeLongitude];
+
+    //vertices coords
+    const v1 = queryParams.get("v1").split(",");
+    const v2 = queryParams.get("v2").split(",");
+    const v3 = queryParams.get("v3").split(",");
+    const v4 = queryParams.get("v4").split(",");
+    const parsedV1Lat = parseFloat(v1[0]);
+    const parsedV1Lon = parseFloat(v1[1]);
+    const parsedV1 = [parsedV1Lat, parsedV1Lon];
+
+    const parsedV2Lat = parseFloat(v2[0]);
+    const parsedV2Lon = parseFloat(v2[1]);
+    const parsedV2 = [parsedV2Lat, parsedV2Lon];
+
+    const parsedV3Lat = parseFloat(v3[0]);
+    const parsedV3Lon = parseFloat(v3[1]);
+    const parsedV3 = [parsedV3Lat, parsedV3Lon];
+
+    const parsedV4Lat = parseFloat(v4[0]);
+    const parsedV4Lon = parseFloat(v4[1]);
+    const parsedV4 = [parsedV4Lat, parsedV4Lon];
+
+    return [parsedV1, parsedV2, parsedV3, parsedV4];
   }
 
   _setStepTwo() {
