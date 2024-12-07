@@ -30,6 +30,10 @@
           placeholder="Ciudad"
         />
         <input
+          class="form__input form__input--county--store"
+          placeholder="Barrio"
+        />
+        <input
           class="form__input form__input--street--store"
           placeholder="Calle"
         />
@@ -42,7 +46,7 @@
           placeholder="Código postal"
         />
         <a
-          class="form__anchor--postalcode"
+          class="secondary form__anchor--postalcode"
           href="https://www.oca.com.ar/Busquedas/CodigosPostales"
           no-referrer
           target="_blank"
@@ -77,18 +81,21 @@
           placeholder="Cuarto vértice"
           disabled
         />
-        <h1>Hace click en el mapa para asignar los vertices del poligono!</h1>
+        <h1 class="secondary">
+          Hace click en el mapa para asignar los vertices del poligono!
+        </h1>
         <button class="button form__button--drawrange" type="submit">
           Dibujar
         </button>
       </form>
       <div class="div__link-container hidden">
         Link para verificar el rango de tu negocio
-        <a class="a__link--delivery-range">Click aquí</a>
+        <a class="secondary a__link--delivery-range">Click aquí</a>
       </div>
       <form class="form form--address hidden">
         <input class="form__input form__input--country" placeholder="País" />
         <input class="form__input form__input--city" placeholder="Ciudad" />
+        <input class="form__input form__input--county" placeholder="Barrio" />
         <input class="form__input form__input--street" placeholder="Calle" />
         <input class="form__input form__input--number" placeholder="Número" />
         <input
@@ -96,7 +103,7 @@
           placeholder="Código postal"
         />
         <a
-          class="form__anchor--postalcode"
+          class="secondary form__anchor--postalcode"
           href="https://www.oca.com.ar/Busquedas/CodigosPostales"
           no-referrer
           target="_blank"
@@ -104,6 +111,12 @@
         >
         <button class="button form__button--verify" type="submit">
           Consultar
+        </button>
+        <button
+          class="button secondary form__button--reset hidden"
+          type="reset"
+        >
+          Reintentar
         </button>
       </form>
     </div>

@@ -16,15 +16,6 @@ body {
   display: flex;
 }
 
-h1 {
-  background-color: lightblue;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  max-width: 190px;
-  font-size: 1rem;
-  font-weight: 100;
-}
-
 .form__column::-webkit-scrollbar {
   display: none;
 }
@@ -60,19 +51,6 @@ h1 {
   margin-bottom: 1rem;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-  width: fit-content;
-  padding: 0.5rem 1rem;
-  background-color: lightblue;
-  cursor: pointer;
-}
-
-a:hover {
-  background-color: darkcyan;
-}
-
 .form__input {
   appearance: none;
   border: 0;
@@ -97,6 +75,27 @@ a:hover {
 .button:hover {
   background-color: rgb(0, 255, 0);
   cursor: pointer;
+}
+
+.button:disabled {
+  color: inherit;
+  cursor: default;
+}
+
+.secondary {
+  color: inherit;
+  text-decoration: none;
+  width: fit-content;
+  padding: 0.5rem 1rem;
+  background-color: lightblue;
+  cursor: pointer;
+  max-width: 190px;
+  font-size: 1rem;
+  font-weight: 100;
+}
+
+.secondary:hover {
+  background-color: darkcyan;
 }
 
 .fail {

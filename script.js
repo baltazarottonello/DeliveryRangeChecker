@@ -1,4 +1,5 @@
 const LAST_STEP = 3;
+const baseRoute = "/index.html";
 
 const successText = "Estás dentro del rango!";
 const failText = "Estás fuera del rango!";
@@ -15,6 +16,7 @@ const inputCountryStore = document.querySelector(
   ".form__input--country--store"
 );
 const inputCityStore = document.querySelector(".form__input--city--store");
+const inputCountyStore = document.querySelector(".form__input--county--store");
 const inputStreetStore = document.querySelector(".form__input--street--store");
 const inputNumberStore = document.querySelector(".form__input--number--store");
 const inputPostalCodeStore = document.querySelector(
@@ -27,10 +29,12 @@ const formVertices = document.querySelector(".form--vertices");
 const formAddress = document.querySelector(".form--address");
 const inputCountry = document.querySelector(".form__input--country");
 const inputCity = document.querySelector(".form__input--city");
+const inputCounty = document.querySelector(".form__input--county");
 const inputStreet = document.querySelector(".form__input--street");
 const inputNumber = document.querySelector(".form__input--number");
 const inputPostalCode = document.querySelector(".form__input--postalcode");
 const formButtonVerify = document.querySelector(".form__button--verify");
+const formButtonReset = document.querySelector(".form__button--reset");
 
 //link DOM elements
 const linkContainer = document.querySelector(".div__link-container");
@@ -42,6 +46,7 @@ class App {
   #storeCoords;
   #verticesArray = [];
   #verticesCounter = 0;
+  #addressMarker;
   #rangePolygon;
   #step;
 
@@ -55,11 +60,10 @@ class App {
       //get query params
       const queryParams = new URLSearchParams(location.search);
 
-      const polygonCoords = this._formatParams(queryParams);
+      const coords = this._formatParams(queryParams);
 
-      this.#verticesArray = polygonCoords;
-    } else {
-      formVertices.addEventListener("submit", this._renderPolygon.bind(this));
+      this.#storeCoords = coords.storeCoords;
+      this.#verticesArray = coords.polygonCoords;
     }
   }
 
@@ -76,81 +80,120 @@ class App {
         }).addTo(this.#map);
 
         if (this.#step === LAST_STEP) {
-          this._renderStoreMarker();
+          L.marker(this.#storeCoords).addTo(this.#map);
           this._renderPolygon();
           this._setLastStep();
         } else {
           formStoreAddress.addEventListener(
             "submit",
-            this._renderStoreMarker.bind(this)
+            this._renderMarkerFromEvent.bind(this)
+          );
+          formVertices.addEventListener(
+            "submit",
+            this._renderPolygon.bind(this)
           );
         }
       }, this._renderError);
     }
   }
 
-  async _renderStoreMarker(event) {
-    if (this.#step === LAST_STEP) {
-      L.marker(this.#storeCoords).addTo(this.#map);
-    } else {
-      event.preventDefault();
-
-      //extract input values
+  async _renderMarkerFromEvent(event) {
+    event.preventDefault();
+    const eventFromStore = event.srcElement.classList[1].includes("store");
+    let values;
+    if (eventFromStore) {
+      event["from"] = "store";
       const country = inputCountryStore.value;
       const city = inputCityStore.value;
+      const county = inputCountyStore.value;
       const street = inputStreetStore.value;
       const number = inputNumberStore.value;
       const postalCode = inputPostalCodeStore.value;
+      values = { country, city, county, street, number, postalCode };
+    } else {
+      const country = inputCountry.value;
+      const city = inputCity.value;
+      const county = inputCounty.value;
+      const street = inputStreet.value;
+      const number = inputNumber.value;
+      const postalCode = inputPostalCode.value;
 
-      //fetch geocoding
-      const response = await fetch(
-        `${baseUrl}format=json&street=${street}%20${number}&city=${city}&country=${country}&postalcode=${postalCode}`
-      );
-      //extract coords
-      const body = await response.json();
-      if (body.length < 1) {
-        this._renderError({ message: "Direccion no encontrada" });
-        return;
-      }
-      const { lat, lon } = body[0];
-      this.#storeCoords = [lat, lon];
-      //render marker
-      this.#storeMarker = L.marker([lat, lon]).addTo(this.#map);
-      //set view
-      this.#map.setView([lat, lon], 16);
-      //set next step
-      this._setStepTwo();
+      values = {
+        country,
+        city,
+        county,
+        street,
+        number,
+        postalCode,
+      };
     }
+
+    const coords = await this._getCoords(values);
+
+    if (coords.length < 1) {
+      this._renderError({ message: "Direccion no encontrada" });
+      return;
+    }
+
+    const marker = L.marker(coords).addTo(this.#map);
+
+    //set view
+    this.#map.setView(coords, 16);
+
+    if (event.from === "store") {
+      this.#storeCoords = coords;
+      this.#storeMarker = marker;
+      this._setStepTwo();
+      return;
+    }
+
+    this._resetForm();
+
+    return marker;
+  }
+
+  _resetForm() {
+    formButtonVerify.disabled = true;
+    formButtonReset.classList.remove("hidden");
+    formButtonReset.addEventListener("click", (e) => {
+      location.reload();
+    });
   }
 
   _formatParams(queryParams) {
-    //store coords
-    const storeLatitude = parseFloat(queryParams.get("storelat"));
-    const storeLongitude = parseFloat(queryParams.get("storelong"));
-    this.#storeCoords = [storeLatitude, storeLongitude];
+    try {
+      //store coords
+      const storeLatitude = parseFloat(queryParams.get("storelat"));
+      const storeLongitude = parseFloat(queryParams.get("storelong"));
 
-    //vertices coords
-    const v1 = queryParams.get("v1").split(",");
-    const v2 = queryParams.get("v2").split(",");
-    const v3 = queryParams.get("v3").split(",");
-    const v4 = queryParams.get("v4").split(",");
-    const parsedV1Lat = parseFloat(v1[0]);
-    const parsedV1Lon = parseFloat(v1[1]);
-    const parsedV1 = [parsedV1Lat, parsedV1Lon];
+      //vertices coords
+      const v1 = queryParams.get("v1").split(",");
+      const v2 = queryParams.get("v2").split(",");
+      const v3 = queryParams.get("v3").split(",");
+      const v4 = queryParams.get("v4").split(",");
+      const parsedV1Lat = parseFloat(v1[0]);
+      const parsedV1Lon = parseFloat(v1[1]);
+      const parsedV1 = [parsedV1Lat, parsedV1Lon];
 
-    const parsedV2Lat = parseFloat(v2[0]);
-    const parsedV2Lon = parseFloat(v2[1]);
-    const parsedV2 = [parsedV2Lat, parsedV2Lon];
+      const parsedV2Lat = parseFloat(v2[0]);
+      const parsedV2Lon = parseFloat(v2[1]);
+      const parsedV2 = [parsedV2Lat, parsedV2Lon];
 
-    const parsedV3Lat = parseFloat(v3[0]);
-    const parsedV3Lon = parseFloat(v3[1]);
-    const parsedV3 = [parsedV3Lat, parsedV3Lon];
+      const parsedV3Lat = parseFloat(v3[0]);
+      const parsedV3Lon = parseFloat(v3[1]);
+      const parsedV3 = [parsedV3Lat, parsedV3Lon];
 
-    const parsedV4Lat = parseFloat(v4[0]);
-    const parsedV4Lon = parseFloat(v4[1]);
-    const parsedV4 = [parsedV4Lat, parsedV4Lon];
+      const parsedV4Lat = parseFloat(v4[0]);
+      const parsedV4Lon = parseFloat(v4[1]);
+      const parsedV4 = [parsedV4Lat, parsedV4Lon];
 
-    return [parsedV1, parsedV2, parsedV3, parsedV4];
+      return {
+        polygonCoords: [parsedV1, parsedV2, parsedV3, parsedV4],
+        storeCoords: [storeLatitude, storeLongitude],
+      };
+    } catch (e) {
+      this._renderError({ message: "Ocurrio algo inesperado" });
+    }
   }
 
   _setStepTwo() {
@@ -172,27 +215,25 @@ class App {
     formAddress.addEventListener("submit", this._checkRange.bind(this));
   }
 
-  async _checkRange(event) {
-    event.preventDefault();
-
-    //extract input values
-    const country = inputCountry.value;
-    const city = inputCity.value;
-    const street = inputStreet.value;
-    const number = inputNumber.value;
-    const postalCode = inputPostalCode.value;
-
+  async _getCoords(values) {
     //fetch geocoding
+    const { street, number, city, country, county, postalCode } = values;
     const response = await fetch(
-      `${baseUrl}format=json&street=${street}%20${number}&city=${city}&country=${country}&postalcode=${postalCode}`
+      `${baseUrl}format=json&street=${street}%20${number}&city=${city}&country=${country}&county=${county}&postalcode=${postalCode}`
     );
     //extract coords
     const body = await response.json();
+
+    if (body.length < 1) return [];
+
     const { lat, lon } = body[0];
-    //render marker
-    const marker = L.marker([lat, lon]).addTo(this.#map);
-    //set map view
-    this.#map.setView([lat, lon], 16);
+
+    return [lat, lon];
+  }
+
+  async _checkRange(event) {
+    const marker = await this._renderMarkerFromEvent(event);
+
     //check if inside
     const inside = this._isMarkerInsidePolygon(marker, this.#rangePolygon);
     if (inside) {
@@ -226,7 +267,10 @@ class App {
 
   _loadVerticesArray(event) {
     //check if array is full
-    if (this.#verticesArray.length >= 4) return;
+    if (this.#verticesArray.length === 4) {
+      this.#map.clearAllEventListeners();
+      return;
+    }
     this.#verticesCounter++;
     const { lat, lng } = event.latlng;
     this.#verticesArray.push([lat, lng]);
@@ -244,8 +288,8 @@ class App {
   _renderPolygon(event) {
     if (this.#step === LAST_STEP) {
       this.#rangePolygon = L.polygon(this.#verticesArray).addTo(this.#map);
-      console.log(this.#rangePolygon);
     } else {
+      event.preventDefault();
       //check if step 1 is done
       if (!this.#storeMarker) {
         this._renderError({
@@ -254,7 +298,6 @@ class App {
         return;
       }
 
-      event.preventDefault();
       //add polygon to map
       if (this.#verticesArray.length < 4) {
         this._renderError({ message: "No seleccionaste todos los vertices" });
@@ -291,6 +334,7 @@ class App {
 
   _renderError(error) {
     alert(error.message);
+    location.replace(location.origin + baseRoute);
   }
 }
 
