@@ -115,5 +115,25 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+.div__error {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 5rem;
+  bottom: 45rem;
+  right: 50rem;
+  left: 50rem;
+  background-color: red;
+  opacity: 90%;
+  border-radius: 1rem;
+  z-index: 999;
+}
+
+.p__error-message {
+  color: white;
+  font-size: small;
 }

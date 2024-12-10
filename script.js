@@ -1,5 +1,5 @@
+import "./styles.css";
 const LAST_STEP = 3;
-const baseRoute = "/index.html";
 
 const successText = "Estás dentro del rango!";
 const failText = "Estás fuera del rango!";
@@ -24,6 +24,7 @@ const inputPostalCodeStore = document.querySelector(
 );
 //vertices DOM elements
 const formVertices = document.querySelector(".form--vertices");
+const formButtonDraw = document.querySelector(".form__button--drawrange");
 
 //address DOM elements
 const formAddress = document.querySelector(".form--address");
@@ -46,9 +47,9 @@ class App {
   #storeCoords;
   #verticesArray = [];
   #verticesCounter = 0;
-  #addressMarker;
   #rangePolygon;
   #step;
+  #timeouts = [];
 
   constructor() {
     this._loadMap();
@@ -69,31 +70,34 @@ class App {
 
   _loadMap() {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
 
-        this.#map = L.map("map").setView([latitude, longitude], 16);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(this.#map);
+          this.#map = L.map("map").setView([latitude, longitude], 16);
+          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution:
+              '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          }).addTo(this.#map);
 
-        if (this.#step === LAST_STEP) {
-          L.marker(this.#storeCoords).addTo(this.#map);
-          this._renderPolygon();
-          this._setLastStep();
-        } else {
-          formStoreAddress.addEventListener(
-            "submit",
-            this._renderMarkerFromEvent.bind(this)
-          );
-          formVertices.addEventListener(
-            "submit",
-            this._renderPolygon.bind(this)
-          );
-        }
-      }, this._renderError);
+          if (this.#step === LAST_STEP) {
+            L.marker(this.#storeCoords).addTo(this.#map);
+            this._renderPolygon();
+            this._setLastStep();
+          } else {
+            formStoreAddress.addEventListener(
+              "submit",
+              this._renderMarkerFromEvent.bind(this)
+            );
+            formVertices.addEventListener(
+              "submit",
+              this._renderPolygon.bind(this)
+            );
+          }
+        },
+        (e) => console.error(e)
+      );
     }
   }
 
@@ -131,7 +135,10 @@ class App {
     const coords = await this._getCoords(values);
 
     if (coords.length < 1) {
-      this._renderError({ message: "Direccion no encontrada" });
+      this._renderError(
+        { message: "Direccion no encontrada" },
+        formStoreAddress
+      );
       return;
     }
 
@@ -292,15 +299,23 @@ class App {
       event.preventDefault();
       //check if step 1 is done
       if (!this.#storeMarker) {
-        this._renderError({
-          message: "Primero tenes que marcar el local en el mapa!",
-        });
+        this._renderError(
+          {
+            message: "Primero tenes que marcar el local en el mapa!",
+          },
+          formButtonDraw
+        );
         return;
       }
 
       //add polygon to map
       if (this.#verticesArray.length < 4) {
-        this._renderError({ message: "No seleccionaste todos los vertices" });
+        return this._renderError(
+          {
+            message: "No seleccionaste todos los vertices",
+          },
+          formButtonDraw
+        );
       }
 
       this.#rangePolygon = L.polygon(this.#verticesArray).addTo(this.#map);
@@ -332,9 +347,30 @@ class App {
     formContainer.classList.add("completed");
   }
 
-  _renderError(error) {
-    alert(error.message);
-    location.replace(location.origin + baseRoute);
+  _renderError(error, element) {
+    const errorDiv = document.querySelector(".div__error");
+    const errorMsg = document.querySelector(".p__error-message");
+    errorDiv.classList.remove("hidden");
+    errorMsg.textContent = error.message;
+    if (element) {
+      let cleared;
+      let timeoutObj = this.#timeouts.find(
+        (timeout) => timeout.element === element
+      );
+      if (timeoutObj) {
+        cleared = true;
+        clearTimeout(timeoutObj.timeout);
+        this.#timeouts = this.#timeouts.filter(
+          (timeout) => timeout !== timeoutObj
+        );
+      }
+      element.classList.add("disabled");
+      const timeout = setTimeout(() => {
+        errorDiv.classList.add("hidden");
+        element.classList.remove("disabled");
+      }, 1000);
+      if (cleared) this.#timeouts.push({ element, timeout });
+    }
   }
 }
 
