@@ -3,6 +3,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Delivery Range Verificator</title>
+    <!-- <link rel="stylesheet" href="styles.css" /> -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,112 +15,118 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <!-- <script defer type="module" src="script.js"></script> -->
     <script defer type="module" src="bundle.js"></script>
   </head>
   <body>
-    <div class="div__error hidden">
-      <p class="p__error-message"></p>
-    </div>
-    <div class="form__column">
-      <form class="form form--store">
-        <input
-          class="form__input form__input--country--store"
-          placeholder="País"
-        />
-        <input
-          class="form__input form__input--city--store"
-          placeholder="Ciudad"
-        />
-        <input
-          class="form__input form__input--county--store"
-          placeholder="Barrio"
-        />
-        <input
-          class="form__input form__input--street--store"
-          placeholder="Calle"
-        />
-        <input
-          class="form__input form__input--number--store"
-          placeholder="Número"
-        />
-        <input
-          class="form__input form__input--postalcode--store"
-          placeholder="Código postal"
-        />
-        <a
-          class="secondary form__anchor--postalcode"
-          href="https://www.oca.com.ar/Busquedas/CodigosPostales"
-          no-referrer
-          target="_blank"
-          >No sé mi código postal</a
-        >
-        <button class="button form__button--storemarker" type="submit">
-          Agregar marcador
-        </button>
-      </form>
-      <form class="form form--vertices hidden">
-        <input
-          type="text"
-          class="form__input form__input--v1"
-          placeholder="Primer vértice"
-          disabled
-        />
-        <input
-          type="text"
-          class="form__input form__input--v2"
-          placeholder="Segundo vértice"
-          disabled
-        />
-        <input
-          type="text"
-          class="form__input form__input--v3"
-          placeholder="Tercer vértice"
-          disabled
-        />
-        <input
-          type="text"
-          class="form__input form__input--v4"
-          placeholder="Cuarto vértice"
-          disabled
-        />
-        <h1 class="secondary">
-          Hace click en el mapa para asignar los vertices del poligono!
-        </h1>
-        <button class="button form__button--drawrange" type="submit">
-          Dibujar
-        </button>
-      </form>
-      <div class="div__link-container hidden">
-        Link para verificar el rango de tu negocio
-        <a class="secondary a__link--delivery-range">Click aquí</a>
+    <!-- <div class="div__hamburger">
+      <img src="hamburger.png" />
+    </div> -->
+    <div class="div__form-column-container">
+      <div class="form__column">
+        <div class="div__error hidden">
+          <p class="p__error-message"></p>
+        </div>
+        <form class="form form--store">
+          <input
+            class="form__input form__input--country--store"
+            placeholder="País"
+          />
+          <input
+            class="form__input form__input--city--store"
+            placeholder="Ciudad"
+          />
+          <input
+            class="form__input form__input--county--store"
+            placeholder="Barrio"
+          />
+          <input
+            class="form__input form__input--street--store"
+            placeholder="Calle"
+          />
+          <input
+            class="form__input form__input--number--store"
+            placeholder="Número"
+          />
+          <input
+            class="form__input form__input--postalcode--store"
+            placeholder="Código postal"
+          />
+          <a
+            class="secondary form__anchor--postalcode"
+            href="https://www.oca.com.ar/Busquedas/CodigosPostales"
+            no-referrer
+            target="_blank"
+            >No sé mi código postal</a
+          >
+          <button class="button form__button--storemarker" type="submit">
+            Agregar marcador
+          </button>
+        </form>
+        <form class="form form--vertices hidden">
+          <input
+            type="text"
+            class="form__input form__input--v1"
+            placeholder="Primer vértice"
+            disabled
+          />
+          <input
+            type="text"
+            class="form__input form__input--v2"
+            placeholder="Segundo vértice"
+            disabled
+          />
+          <input
+            type="text"
+            class="form__input form__input--v3"
+            placeholder="Tercer vértice"
+            disabled
+          />
+          <input
+            type="text"
+            class="form__input form__input--v4"
+            placeholder="Cuarto vértice"
+            disabled
+          />
+          <h1 class="secondary">
+            Hace click en el mapa para asignar los vertices del poligono!
+          </h1>
+          <button class="button form__button--drawrange" type="submit">
+            Dibujar
+          </button>
+        </form>
+        <div class="div__link-container hidden">
+          Link para verificar el rango de tu negocio
+          <a class="secondary a__link--delivery-range">Click aquí</a>
+        </div>
+        <form class="form form--address hidden">
+          <input class="form__input form__input--country" placeholder="País" />
+          <input class="form__input form__input--city" placeholder="Ciudad" />
+          <input class="form__input form__input--county" placeholder="Barrio" />
+          <input class="form__input form__input--street" placeholder="Calle" />
+          <input class="form__input form__input--number" placeholder="Número" />
+          <input
+            class="form__input form__input--postalcode"
+            placeholder="Código postal"
+          />
+          <a
+            class="secondary form__anchor--postalcode"
+            href="https://www.oca.com.ar/Busquedas/CodigosPostales"
+            no-referrer
+            target="_blank"
+            >No sé mi código postal</a
+          >
+          <button class="button form__button--verify" type="submit">
+            Consultar
+          </button>
+          <button
+            class="button secondary form__button--reset hidden"
+            type="reset"
+          >
+            Reintentar
+          </button>
+        </form>
       </div>
-      <form class="form form--address hidden">
-        <input class="form__input form__input--country" placeholder="País" />
-        <input class="form__input form__input--city" placeholder="Ciudad" />
-        <input class="form__input form__input--county" placeholder="Barrio" />
-        <input class="form__input form__input--street" placeholder="Calle" />
-        <input class="form__input form__input--number" placeholder="Número" />
-        <input
-          class="form__input form__input--postalcode"
-          placeholder="Código postal"
-        />
-        <a
-          class="secondary form__anchor--postalcode"
-          href="https://www.oca.com.ar/Busquedas/CodigosPostales"
-          no-referrer
-          target="_blank"
-          >No sé mi código postal</a
-        >
-        <button class="button form__button--verify" type="submit">
-          Consultar
-        </button>
-        <button
-          class="button secondary form__button--reset hidden"
-          type="reset"
-        >
-          Reintentar
-        </button>
-      </form>
     </div>
     <div id="map"></div>
   </body>

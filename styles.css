@@ -16,6 +16,21 @@ body {
   display: flex;
 }
 
+@media (pointer: coarse) {
+  body {
+    flex-direction: column;
+  }
+
+  .div__form-column-container {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .form__column {
+    flex-grow: 1;
+  }
+}
+
 .form__column::-webkit-scrollbar {
   display: none;
 }
@@ -63,8 +78,8 @@ body {
 }
 
 .button {
+  margin: 1rem 0 1rem 0;
   align-self: center;
-  margin-top: 1rem;
   appearance: none;
   border: 0;
   background-color: lightgreen;
@@ -119,17 +134,14 @@ body {
 }
 
 .div__error {
+  margin: 1rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  top: 5rem;
-  bottom: 45rem;
-  right: 50rem;
-  left: 50rem;
   background-color: red;
   opacity: 90%;
-  border-radius: 1rem;
   z-index: 999;
 }
 
@@ -137,3 +149,10 @@ body {
   color: white;
   font-size: small;
 }
+
+/* img {
+  width: 0.5rem;
+  margin: 0 0.5rem 0.05rem 0;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  background-color: aliceblue;
+} */

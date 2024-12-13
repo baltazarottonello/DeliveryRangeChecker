@@ -1,4 +1,5 @@
 import "./styles.css";
+
 const LAST_STEP = 3;
 
 const successText = "Estás dentro del rango!";
